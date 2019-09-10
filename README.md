@@ -24,6 +24,20 @@ Import component
 | threshold   | The threshold at which an item must rank to be included in the results | Number ([see](#rankings)) | 0       |
 | maxDistance | The max distance between characters to match on for subsequences       | Number                    | 9       |
 
+### Scoped Slots
+
+| Slot Prop    | Description                       | Value Type |
+| ------------ | --------------------------------- | ---------- |
+| results      | Results of search                 | Array      |
+| totalResults | Total results including all pages | Number     |
+| searching    | Performing search                 | Boolean    |
+
+### Events
+
+| Event     | Description       | Value Type |
+| --------- | ----------------- | ---------- |
+| searching | Performing search | Boolean    |
+
 #### How search is performed
 
 Internally, the search functionality is similar to Kent Dodd's [match-sorter](https://github.com/kentcdodds/match-sorter) library. We rank the searchable strings and then sort them by those rankings.
