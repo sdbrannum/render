@@ -63,3 +63,20 @@ A dedicated web worker is most useful when you have a large set of data that you
 [Here]() is a test of this feature that allows you to search through around 60,000 records while keeping the UI responsive.
 
 Internally, if the user's browser does not support web workers we fall back to searching on the UI thread.
+
+## Potential Components
+
+-   Data Grid (Sortable js)
+-   Tree View
+-   Number Input/Formatting
+-   Drag and Drop
+-   Button
+-   Dropdown
+-   Pagination
+-   DatePicker
+-   TimePicker
+-   Carousel
+-   Error boundary?
+-   Fetch?
+-   Media query (show component's based on size)
+-   [Tags Input](https://adamwathan.me/renderless-components-in-vuejs/)
