@@ -1,16 +1,18 @@
 <template>
     <div id="app">
-        <FuzzySearchImpl />
+        <CalendarImpl />
     </div>
 </template>
 
 <script>
-import FuzzySearchImpl from '@/components/FuzzySearch/FuzzySearchImpl.vue';
+import CalendarImpl from '@/components/Calendar/Calendar.Impl.vue';
+// import FuzzySearchImpl from '@/components/FuzzySearch/FuzzySearchImpl.vue';
 
 export default {
     name: 'app',
     components: {
-        FuzzySearchImpl,
+        // FuzzySearchImpl,
+        CalendarImpl,
     },
 };
 </script>

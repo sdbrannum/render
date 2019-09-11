@@ -63,3 +63,36 @@ A dedicated web worker is most useful when you have a large set of data that you
 [Here]() is a test of this feature that allows you to search through around 60,000 records while keeping the UI responsive.
 
 Internally, if the user's browser does not support web workers we fall back to searching on the UI thread.
+
+## Calendar
+
+### Configuration
+
+| Prop      | Description                                                                                  | Type/Options | Default |
+| --------- | -------------------------------------------------------------------------------------------- | ------------ | ------- |
+| asWeeks   | Generate a 2d array representing arrays and days, otherwise a flat array ([see structure]()) | Boolean      | true    |
+| iso       | The query used to perform a search                                                           | Boolean      | false   |
+| startDate | Date to generate the datesArray around                                                       | Date         | today   |
+
+### Scoped Slots
+
+| Slot Prop  | Description                                  | Value Type |
+| ---------- | -------------------------------------------- | ---------- |
+| datesArray | Array of dates ([see below]() for structure) | Array      |
+
+#### Dates Array Structure
+
+The dates array can be either a 2d or 1d array of objects depending on the `withWeeks` prop. If it is a 2d array then the each top level array represents a week and each object within that array represents a date. The 1d array is just an array of objects representing the dates.
+
+The dates array generates a full calendar month worth of dates with the option to generate a week at a time coming as a feature soon.
+
+The date object within the arrays is represented as such:
+
+```
+{
+    date, // Date
+    isCurrentMonth, // Boolean: refers to the current generated month
+    isToday, // Boolean,
+    isSelected // Boolean
+}
+```
