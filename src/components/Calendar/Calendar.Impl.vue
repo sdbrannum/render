@@ -1,18 +1,38 @@
 <template>
     <div>
+        <div>
+            <button @click="viewType = viewTypes.DAY">Day</button>
+            <button @click="viewType = viewTypes.WEEK">Week</button>
+            <button @click="viewType = viewTypes.MONTH">Month</button>
+        </div>
+        <div>
+            <label for="iso">
+                Week Starts On Monday
+                <input type="checkbox" @change="iso = !iso" />
+            </label>
+        </div>
         {{ selectedDate }}
-        <RCalendar :iso="true" :selectedDate="selectedDate">
-            <div class="calendar" slot-scope="{ datesArray }">
-                <div class="week" v-for="(week, idx) in datesArray" :key="idx">
-                    <div
-                        class="day"
-                        v-for="(day, idx) in week"
-                        :key="`${day}-${idx}`"
-                        @click="setSelected(day)"
-                    >
-                        {{ day.date | formatToDate }}
+        <RCalendar :iso="iso" :date="selectedDate" :view="viewType">
+            <div class="calendar" slot-scope="{ dates }">
+                <template v-if="viewType === viewTypes.MONTH">
+                    <div class="week" v-for="(week, idx) in dates" :key="idx">
+                        <div
+                            class="day"
+                            v-for="(day, idx) in week"
+                            :key="`${day}-${idx}`"
+                            @click="setSelected(day)"
+                        >
+                            {{ day.date | formatToDate }}
+                        </div>
                     </div>
-                </div>
+                </template>
+                <template v-else>
+                    <div class="week">
+                        <div class="class" v-for="day in dates" :key="day">
+                            {{ day.date | formatToDate }}
+                        </div>
+                    </div>
+                </template>
             </div>
         </RCalendar>
     </div>
@@ -20,6 +40,8 @@
 
 <script>
 import RCalendar from './index';
+import { view_types } from './constants';
+
 export default {
     components: {
         RCalendar,
@@ -27,6 +49,9 @@ export default {
     data() {
         return {
             selectedDate: new Date(),
+            viewType: view_types.MONTH,
+            viewTypes: view_types,
+            iso: false,
         };
     },
     filters: {

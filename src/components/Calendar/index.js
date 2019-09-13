@@ -1,127 +1,192 @@
 import {
     eachDayOfInterval,
+    startOfWeek,
+    endOfWeek,
     startOfMonth,
-    endOfMonth,
     lastDayOfMonth,
-    isSameDay,
     isSameMonth,
     isToday,
     getDay,
     getISODay,
     addDays,
-    addMonths,
-    setDate,
-    setMonth,
-    getMonth,
 } from 'date-fns';
-import { day_labels, month_labels } from './constants';
+import { day_labels, month_labels, view_types } from './constants';
 
 export default {
     name: 'RCalendar',
     render() {
         return this.$scopedSlots.default({
-            datesArray: this.datesArray,
+            dates: this.dates,
+            currentDayLabel: this.currentDayLabel,
+            currentMonthLabel: this.currentMonthLabel,
+            dayLabels: this.dayLabels,
+            monthLabels: this.monthLabels,
         });
     },
     props: {
-        selectedDate: {
+        /**
+         * Date that we build the days around
+         */
+        date: {
             type: Date,
             required: false,
-            default: new Date(),
+            default: () => new Date(),
         },
-        month: {
-            type: Number,
+        /**
+         * View type ie day, week, month, year
+         */
+        view: {
+            type: String,
             required: false,
+            default: view_types.MONTH,
+            validator(val) {
+                return Object.values(view_types).indexOf(val) !== -1;
+            },
         },
-        year: {
-            type: Number,
-            required: false,
-        },
+        /**
+         * Build as 2d array if longer than 1 week otherwise as 1d array of days
+         */
         asWeeks: {
             type: Boolean,
             required: false,
             default: true,
         },
+        /**
+         * Controls if sunday is the first (default) or last day of week
+         */
         iso: {
             type: Boolean,
             required: false,
             default: false,
         },
+        /**
+         * Type of day label abr, full, alt
+         */
+        dayLabelType: {
+            type: String,
+            required: false,
+            default: 'full',
+            validator(val) {
+                return ['abr', 'full', 'alt'].indexOf(val) !== -1;
+            },
+        },
+        /**
+         * Type of month label abr, full
+         */
+        monthLabelType: {
+            type: String,
+            required: false,
+            default: 'full',
+            validator(val) {
+                return ['abr', 'full'].indexOf(val) !== -1;
+            },
+        },
     },
     data() {
-        return {
-            today: null,
-            currDateCursor: null,
-            dayLabels: null,
-            monthLabels: null,
-            internalMonth: 0,
-            internalYear: 0,
-        };
+        return {};
     },
     computed: {
+        /**
+         * Day labels depending on dayLabelType
+         */
+        dayLabels() {
+            const dayLabels =
+                this.dayLabelType === 'alt'
+                    ? day_labels.map(label => label.alt)
+                    : this.dayLabelType === 'abr'
+                    ? day_labels.map(label => label.abr)
+                    : day_labels.map(label => label.full);
+
+            if (this.iso) {
+                dayLabels.push(dayLabels.shift());
+            }
+            return dayLabels;
+        },
+        /**
+         * Month labels depending on monthLabelType
+         */
+        monthLabels() {
+            return this.monthLabelType === 'abr'
+                ? month_labels.map(label => label.abr)
+                : month_labels.map(label => label.full);
+        },
+        /**
+         * this.date's label
+         */
+        currentDayLabel() {
+            return this.dayLabels[this.getDayEval(this.date)];
+        },
+        /**
+         * this.date's month
+         */
         currentMonth() {
-            return this.currDateCursor.getMonth();
+            return this.date.getMonth();
         },
-        currentYear() {
-            return this.currDateCursor.getFullYear();
-        },
+        /**
+         * this.date's month label
+         */
         currentMonthLabel() {
             return this.monthLabels[this.currentMonth];
         },
-        datesArray() {
-            const date = this.currDateCursor;
-            const start = startOfMonth(date);
-            const end = endOfMonth(date);
+        /**
+         * this.date's year label
+         */
+        currentYear() {
+            return this.date.getFullYear();
+        },
+        /**
+         * first day of the interval
+         */
+        startDate() {
+            const date =
+                this.view === view_types.DAY
+                    ? this.date
+                    : this.view === view_types.WEEK
+                    ? startOfWeek(this.date, { weekStartsOn: this.iso ? 1 : 0 })
+                    : startOfMonth(this.date);
 
-            const days = eachDayOfInterval({
-                start,
-                end,
-            }).map(day => ({
-                date: day,
-                isCurrentMonth: isSameMonth(
-                    new Date(this.currentYear, this.currentMonth),
-                    day
-                ),
-                isToday: isToday(day),
-                isSelected: isSameDay(this.selectedDate, day),
+            if (this.view === view_types.MONTH) {
+                const daysNeededAtStart = this.getDayEval(date);
+                return addDays(date, -daysNeededAtStart);
+            }
+            return date;
+        },
+        /**
+         * last day of the interval
+         */
+        endDate() {
+            const date =
+                this.view === view_types.DAY
+                    ? this.date
+                    : this.view === view_types.WEEK
+                    ? endOfWeek(this.date, { weekStartsOn: this.iso ? 1 : 0 })
+                    : lastDayOfMonth(this.date);
+
+            if (this.view === view_types.MONTH) {
+                const daysNeededAtEnd =
+                    7 - (this.getDayEval(date) + 1) > 6
+                        ? 0
+                        : 7 - this.getDayEval(date) - 1;
+                return addDays(date, daysNeededAtEnd);
+            }
+
+            return date;
+        },
+        /**
+         * Dates array
+         */
+        dates() {
+            const tempDates = eachDayOfInterval({
+                start: this.startDate,
+                end: this.endDate,
+            }).map(date => ({
+                date,
+                isCurrentMonth: isSameMonth(this.date, date),
+                isToday: isToday(date),
             }));
 
-            // gen the days from last month
-            let previousMonthCursor = lastDayOfMonth(addMonths(date, -1));
-            let begIndex = this.getDayEval(days[0].date);
-            // iso uses 1 - 7
-            if (this.iso) {
-                begIndex -= 1;
-            }
-            for (let i = begIndex; i > 0; i--) {
-                days.unshift({
-                    date: previousMonthCursor,
-                    isCurrentMonth: false,
-                    isToday: isToday(previousMonthCursor),
-                    isSelected: isSameDay(
-                        this.selectedDate,
-                        previousMonthCursor
-                    ),
-                });
-                previousMonthCursor = addDays(previousMonthCursor, -1);
-            }
-
-            // gen days for next month
-            const daysNeededAtEnd =
-                days.length % 7 > 0 ? 7 - (days.length % 7) : 0;
-            let nextMonthCursor = addMonths(date, 1);
-            nextMonthCursor = setDate(nextMonthCursor, 1);
-            for (let x = 1; x <= daysNeededAtEnd; x++) {
-                days.push({
-                    date: nextMonthCursor,
-                    isCurrentMonth: false,
-                    isToday: isToday(nextMonthCursor),
-                    isSelected: isSameDay(this.selectedDate, nextMonthCursor),
-                });
-                nextMonthCursor = addDays(nextMonthCursor, 1);
-            }
-            if (this.asWeeks) {
-                return days.reduce(function(acc, curr, idx) {
+            if (this.asWeeks && this.view === view_types.MONTH) {
+                return tempDates.reduce(function(acc, curr, idx) {
                     return (
                         (idx % 7 == 0
                             ? acc.push([curr])
@@ -129,53 +194,21 @@ export default {
                     );
                 }, []);
             }
-            return days;
+            return tempDates;
         },
-    },
-    created() {
-        this.dayLabels = day_labels.slice();
-        this.monthLabels = month_labels.slice();
-        this.today = new Date();
-        this.currDateCursor = this.selectedDate;
-        //
-        this.internalMonth = this.month;
-        this.internalYear = this.year;
-    },
-    mounted() {
-        if (this.startDate) {
-            this.currDateCursor = this.startDate;
-            this.selectedDate = this.startDate;
-        }
     },
     methods: {
+        /**
+         * Get day index accounting for iso prop
+         * @param {Date} date
+         */
         getDayEval(date) {
-            return this.iso ? getISODay(date) : getDay(date);
-        },
-        dayClassObj(day) {
-            return {
-                today: day.isToday,
-                current: day.isCurrentMonth,
-                selected: day.isSelected,
-            };
-        },
-        nextMonth() {
-            this.currDateCursor = addMonths(this.currDateCursor, 1);
-        },
-        previousMonth() {
-            this.currDateCursor = addMonths(this.currDateCursor, -1);
-        },
-        // TODO: make watcher on selectedDate call this
-        setSelectedDate(day) {
-            this.selectedDate = day.date;
-            this.$emit('input', this.selectedDate);
-            // change calendar to correct month if they select previous or next month's days
-            if (!day.isCurrentMonth) {
-                const selectedMonth = getMonth(this.selectedDate);
-                this.currDateCursor = setMonth(
-                    this.currDateCursor,
-                    selectedMonth
-                );
+            let dayIndex = this.iso ? getISODay(date) : getDay(date);
+            if (this.iso) {
+                dayIndex -= 1;
             }
+            console.log('getDayEval', date, dayIndex);
+            return dayIndex;
         },
     },
 };
