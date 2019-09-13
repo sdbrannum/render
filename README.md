@@ -108,3 +108,19 @@ The date object within the arrays is represented as such:
     isToday, // Boolean,
 }
 ```
+## Potential Components
+
+-   Data Grid (Sortable js)
+-   Tree View
+-   Number Input/Formatting
+-   Drag and Drop
+-   Button
+-   Dropdown
+-   Pagination
+-   DatePicker
+-   TimePicker
+-   Carousel
+-   Error boundary?
+-   Fetch?
+-   Media query (show component's based on size)
+-   [Tags Input](https://adamwathan.me/renderless-components-in-vuejs/)
