@@ -1,6 +1,6 @@
 import Search from './search';
-import Worker from 'worker-loader!./search.worker.js'; // use during dev
-// import Worker from 'web-worker:./search.worker.js'; // use for build
+// import Worker from 'worker-loader!./search.worker.js'; // use during dev
+import Worker from 'web-worker:./search.worker.js'; // use for build
 import { msg_type } from './constants';
 
 export default {
