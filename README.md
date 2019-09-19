@@ -78,6 +78,7 @@ Internally, if the user's browser does not support web workers we fall back to s
 | iso            | Determines if Monday is the first day of the week                                                                                                             | Boolean      | `false`               |
 | dayLabelType   | Type of day labels to generate (`'alt'` (Su), `'full'` (Sunday), `'abr'` (Sun))                                                                               | String       | `'full'`              |
 | monthLabelType | Type of month label's to generate (`'abr'` (Sept) or `'full'` (September))                                                                                    | String       | `'full'`              |
+| events         | Array of event objects ([see below](#events) for detail)                                                                                                      | Array        | `[]`                  |
 
 ### Scoped Slots
 
@@ -108,6 +109,13 @@ The date object within the arrays is represented as such:
     isToday, // Boolean,
 }
 ```
+
+#### Events
+
+The events prop should be an array of objects with each object containing a single event. The only requirement for a date is that it has a `start` key with a `Date` value representing when the event starts. An optional key of `end` with a `Date` value can be supplied to make an event appear on multiple days. All other information within the object will be directly copied over so you can put anything within the object that may be of value such as an address, title, description, etc..
+
+The events will be returned correspondingly within the `dates` scoped slot per day as an array of objects.
+
 ## Potential Components
 
 -   Data Grid (Sortable js)

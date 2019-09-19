@@ -4,7 +4,10 @@ import {
     endOfWeek,
     startOfMonth,
     lastDayOfMonth,
+    isDate,
     isSameMonth,
+    isSameDay,
+    isWithinInterval,
     isToday,
     getDay,
     getISODay,
@@ -80,6 +83,14 @@ export default {
             validator(val) {
                 return ['abr', 'full'].indexOf(val) !== -1;
             },
+        },
+        /**
+         * Events array
+         */
+        events: {
+            type: Array,
+            required: false,
+            default: () => [],
         },
     },
     data() {
@@ -183,6 +194,27 @@ export default {
                 date,
                 isCurrentMonth: isSameMonth(this.date, date),
                 isToday: isToday(date),
+                events: this.events
+                    .filter(evt => {
+                        if (
+                            evt.start &&
+                            evt.end &&
+                            isDate(evt.start) &&
+                            isDate(evt.end)
+                        ) {
+                            return isWithinInterval(date, {
+                                start: evt.start,
+                                end: evt.end,
+                            });
+                        } else {
+                            return (
+                                evt.start &&
+                                isDate(evt.start) &&
+                                isSameDay(date, evt.start)
+                            );
+                        }
+                    })
+                    .sort((a, b) => b.start - a.start),
             }));
 
             if (this.asWeeks && this.view === view_types.MONTH) {
@@ -207,7 +239,6 @@ export default {
             if (this.iso) {
                 dayIndex -= 1;
             }
-            console.log('getDayEval', date, dayIndex);
             return dayIndex;
         },
     },

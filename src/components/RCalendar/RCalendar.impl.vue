@@ -12,7 +12,12 @@
             </label>
         </div>
         {{ selectedDate }}
-        <RCalendar :iso="iso" :date="selectedDate" :view="viewType">
+        <RCalendar
+            :iso="iso"
+            :date="selectedDate"
+            :view="viewType"
+            :events="events"
+        >
             <div class="calendar" slot-scope="{ dates }">
                 <template v-if="viewType === viewTypes.MONTH">
                     <div class="week" v-for="(week, idx) in dates" :key="idx">
@@ -22,7 +27,18 @@
                             :key="`${day}-${idx}`"
                             @click="setSelected(day)"
                         >
-                            {{ day.date | formatToDate }}
+                            <header>
+                                <span>{{ day.date | formatToDate }}</span>
+                            </header>
+                            <div class="events">
+                                <div
+                                    class="event"
+                                    v-for="event in day.events"
+                                    :key="event.id"
+                                >
+                                    {{ event.title }}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </template>
@@ -52,6 +68,41 @@ export default {
             viewType: view_types.MONTH,
             viewTypes: view_types,
             iso: false,
+            events: [
+                {
+                    id: 1,
+                    start: new Date(2019, 9, 1),
+                    end: null,
+                    title: 'Meeting with Sabrina',
+                    details: {
+                        location: 'P1E Conference Room',
+                    },
+                },
+                {
+                    id: 1,
+                    start: new Date(2019, 9, 1),
+                    end: null,
+                    title: "Mark's birthday",
+                    details: {
+                        location: 'Emperial Brewery',
+                    },
+                },
+                {
+                    id: 1,
+                    start: new Date(2019, 9, 2),
+                    end: new Date(2019, 9, 4),
+                    title: 'Vue meetup',
+                    details: {
+                        location: {
+                            place: 'Austin Convention Center',
+                            city: 'Austin',
+                            state: 'TX',
+                            address: '500 E. Cesar Chavez St.',
+                            zip: 78701,
+                        },
+                    },
+                },
+            ],
         };
     },
     filters: {
@@ -72,10 +123,12 @@ export default {
     display: flex;
     flex-direction: column;
     border: 1px solid grey;
+    height: 500px;
 }
 
 .week {
     display: flex;
+    flex: 1;
     flex-direction: row;
     border-bottom: 1px solid grey;
 }
