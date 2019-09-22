@@ -29,8 +29,8 @@ test('the search results contain all the matching results (flat)', () => {
         'AbC',
         'any word abcstartswith',
         'abc',
-        'a subsequence',
-        'c substring a',
+        'a iosubsequence',
+        'c ooosubsequence a',
     ];
     const search = new Search(data);
     const { results } = search.execute('AbC');
@@ -40,8 +40,8 @@ test('the search results contain all the matching results (flat)', () => {
     expect(resultData).toContain('abcstartswith');
     expect(resultData).toContain('AbC');
     expect(resultData).toContain('any word abcstartswith');
-    expect(resultData).toContain('a subsequence');
-    expect(resultData).toContain('c substring a');
+    expect(resultData).toContain('a iosubsequence');
+    expect(resultData).toContain('c ooosubsequence a');
 });
 
 test('the search results are ranked correctly (flat)', () => {
@@ -69,8 +69,8 @@ test('the search results are ranked correctly (flat)', () => {
     expect(c.rank).toEqual(rankings.CASE_SENSITIVE_EQUAL);
     expect(d.rank).toEqual(rankings.WORD_STARTS_WITH);
     expect(e.rank).toEqual(rankings.EQUAL);
-    expect(f.rank).toEqual(rankings.SUBSEQUENCE);
-    expect(g.rank).toEqual(rankings.SUBSTRING);
+    expect(f.rank).toEqual(rankings.IO_SUBSEQUENCE);
+    expect(g.rank).toEqual(rankings.SUBSEQUENCE);
 });
 
 test('the search results are sorted correctly (flat)', () => {

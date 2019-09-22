@@ -6,20 +6,40 @@ export default class Search {
         this.keys = keys;
         this.paged = options.paged || false;
         this.pageSize = options.pageSize || data.length;
-        this.threshold = options.threshold || rankings.SUBSTRING;
+        this.threshold = options.threshold || rankings.SUBSEQUENCE;
         this.maxDistance = options.maxDistance || 9;
         this.results = [];
         this.cachedQuery = null;
     }
+
+    /**
+     * Get page from results
+     * @param {Number} page
+     */
+    getPage(page) {
+        const startIndex = this.pageSize * (page - 1);
+        const endIndex = this.pageSize * page;
+        const pagedResults = this.results.slice(startIndex, endIndex);
+        const totalResults = this.results.length;
+        return {
+            results: pagedResults,
+            totalResults,
+        };
+    }
+
     /**
      * Return sorted and matched results based on given query and data
      * @param {String} query
      * @param {Array} data
      * @remarks by reference
      */
-    execute(query) {
+    execute(query, page = 1) {
+        if (this.results.length > 0 && this.cachedQuery === query) {
+            return this.getPage(page);
+        }
         this.cachedQuery = query;
         this.results = [];
+
         if (!query) {
             for (let i = 0; i < this.data.length; i++) {
                 this.results.push({
@@ -30,7 +50,7 @@ export default class Search {
                 });
             }
             if (this.paged) {
-                return this.getPage(1);
+                return this.getPage(page);
             }
 
             return {
@@ -169,20 +189,20 @@ export default class Search {
         }
 
         // in order subsequence
-        let minWin = this.minWinSeq(QUERY_UPPER, EL_UPPER);
+        let minWin = this.minWinInOrderSeq(QUERY_UPPER, EL_UPPER);
         if (minWin.minSequence && minWin.minSequence.length > 0) {
             return {
-                rank: rankings.SUBSEQUENCE,
+                rank: rankings.IO_SUBSEQUENCE,
                 rankedItem: el,
                 distance: minWin.minSequence.length - query.length,
                 positions: minWin.positions,
             };
         }
 
-        minWin = this.minWinSub(QUERY_UPPER, EL_UPPER);
+        minWin = this.minWinOutOfOrderSeq(QUERY_UPPER, EL_UPPER);
         if (minWin.minSequence && minWin.minSequence.length > 0) {
             return {
-                rank: rankings.SUBSTRING,
+                rank: rankings.SUBSEQUENCE,
                 rankedItem: el,
                 distance: minWin.minSequence.length - query.length,
                 positions: minWin.positions,
@@ -205,7 +225,7 @@ export default class Search {
      * @returns {String} minimum subsequence window
      * @remarks https://www.youtube.com/watch?v=W2DvQcDPD9A
      */
-    minWinSeq(query, searchString) {
+    minWinInOrderSeq(query, searchString) {
         let minSequence = null;
 
         if (!query || !searchString) {
@@ -249,7 +269,7 @@ export default class Search {
      * @param {String} query
      * @param {String} searchString
      */
-    minWinSub(query, searchString) {
+    minWinOutOfOrderSeq(query, searchString) {
         let minSequence = null;
         let positions = [];
         if (!query || !searchString) {
@@ -372,16 +392,5 @@ export default class Search {
         return Array(Math.ceil((stop - start) / 1))
             .fill(start)
             .map((x, y) => x + y * 1);
-    }
-
-    getPage(page) {
-        const startIndex = this.pageSize * (page - 1);
-        const endIndex = this.pageSize * page;
-        const pagedResults = this.results.slice(startIndex, endIndex);
-        const totalResults = this.results.length;
-        return {
-            results: pagedResults,
-            totalResults,
-        };
     }
 }

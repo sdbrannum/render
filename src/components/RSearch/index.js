@@ -1,5 +1,10 @@
-import Worker from 'web-worker:./search.worker.js'; // build
+// import Worker from 'web-worker:./search.worker.js'; // build
 // import Worker from 'worker-loader!./search.worker.js'; // dev
+import PromiseWorker from 'promise-worker';
+const Worker =
+    process.env.NODE_ENV === 'production'
+        ? require('web-worker:./search.worker.js')
+        : require('worker-loader!./search.worker.js');
 import Search from './search';
 import { msg_type } from './constants';
 
@@ -17,6 +22,14 @@ export default {
             type: Array,
             required: false,
             default: () => [],
+        },
+        /**
+         * Prefill the results when data is set before query
+         */
+        prefill: {
+            type: Boolean,
+            required: false,
+            default: true,
         },
         keys: {
             type: Array,
@@ -102,23 +115,49 @@ export default {
     watch: {
         data(newData) {
             if (this.worker) {
-                this.workerMessenger(msg_type.DATA, newData);
+                this.worker
+                    .postMessage({
+                        type: msg_type.DATA,
+                        payload: newData,
+                    })
+                    .then(() => {
+                        if (this.prefill) {
+                            this.worker
+                                .postMessage({
+                                    type: msg_type.SEARCH,
+                                    payload: { query: null, page: this.page },
+                                })
+                                .then(payload => this.onSearchResults(payload));
+                        }
+                    });
             } else {
                 this.search.data = newData;
+                if (this.prefill) {
+                    this.search.execute(null, this.page);
+                }
             }
         },
         keys(newKeys) {
             if (this.worker) {
-                this.workerMessenger(msg_type.KEYS, newKeys);
+                this.worker.postMessage({
+                    type: msg_type.KEYS,
+                    payload: newKeys,
+                });
             } else {
                 this.search.keys = newKeys;
             }
         },
         page(newPage) {
+            // console.log('new page >>', newPage);
             if (this.worker) {
-                this.workerMessenger(msg_type.PAGE, newPage);
+                this.worker
+                    .postMessage({
+                        type: msg_type.SEARCH,
+                        payload: { query: this.query, page: newPage },
+                    })
+                    .then(payload => this.onSearchResults(payload));
             } else {
-                this.search.getPage(newPage);
+                this.search.execute(this.query, newPage);
             }
         },
         query(newQuery) {
@@ -133,39 +172,39 @@ export default {
             );
 
         if (this.useWorker && !!window.Worker) {
-            this.worker = new Worker();
-            this.worker.onmessage = e => this.workerListener(e);
-            this.workerMessenger(msg_type.CONFIG, this.searchOptions);
+            this.worker = new PromiseWorker(new Worker());
+            this.worker.postMessage({
+                type: msg_type.CONFIG,
+                payload: this.searchOptions,
+            });
             this.debouncedSearch = debounce(query => {
                 this.setSearching(true);
-                this.workerMessenger(msg_type.SEARCH, query);
+                this.worker
+                    .postMessage({
+                        type: msg_type.SEARCH,
+                        payload: { query },
+                    })
+                    .then(payload => this.onSearchResults(payload));
             }, this.wait);
         } else {
             this.search = new Search(this.data, this.keys, this.searchOptions);
             this.debouncedSearch = debounce(query => {
                 this.setSearching(true);
-                ({
-                    results: this.results,
-                    totalResults: this.totalResults,
-                } = this.search.execute(query));
-                this.setSearching(false);
+                this.onSearchResults(this.search.execute(query));
             }, this.wait);
         }
     },
     mounted() {},
     methods: {
-        workerMessenger(type, payload) {
-            this.worker.postMessage({ type, payload });
-        },
-        workerListener(e) {
-            this.setSearching(false);
-            const msg = e.data;
-            this.results = msg.payload.results;
-            this.totalResults = msg.payload.totalResults;
-        },
         setSearching(isSearching) {
             this.searching = isSearching;
             this.$emit('searching', isSearching);
+        },
+        onSearchResults(payload) {
+            console.log('hit', this.page, payload);
+            this.setSearching(false);
+            this.results = payload.results;
+            this.totalResults = payload.totalResults;
         },
     },
 };
