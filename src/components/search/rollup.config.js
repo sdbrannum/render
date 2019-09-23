@@ -6,7 +6,7 @@ import webWorkerLoader from 'rollup-plugin-web-worker-loader';
 import resolve from 'rollup-plugin-node-resolve'; // resolve to include external dependencies
 
 export default {
-    input: 'src/components/RSearch/wrapper.js',
+    input: 'src/components/search/wrapper.js',
     output: [
         {
             name: 'RSearch',

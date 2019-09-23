@@ -52,10 +52,10 @@ for (const componentName of componentNames) {
         `rollup --config src/components/${componentName}/rollup.config.js`
     );
 
-    // const destPackageFolder = path.resolve(
-    //     __dirname,
-    //     `../packages/render/${componentKebabCased}`
-    // );
+    const destPackageFolder = path.resolve(
+        __dirname,
+        `../dist/renderless/${componentKebabCased}`
+    );
 
     // console.log('destPackageFolder', destPackageFolder);
     // // write package.json
@@ -65,19 +65,20 @@ for (const componentName of componentNames) {
     //     description: libConfig.packages[componentKebabCased].description,
     //     // example,
     // };
-    // console.info(`Writing package.json for ${packageConfig.moduleName}`);
-    // fs.writeFileSync(
-    //     path.resolve(destPackageFolder, 'package.json'),
-    //     generatePackageJson(packageConfig)
-    // );
 
-    // // copy readme
-    // console.info(`Writing readme for ${packageConfig.moduleName}`);
-    // copyReadme(`src/components/${componentName}`, destPackageFolder);
+    console.info(`Writing package.json for ${componentKebabCased}`);
+    fs.writeFileSync(
+        path.resolve(destPackageFolder, 'package.json'),
+        generatePackageJson(packageConfig)
+    );
 
-    // // write license
-    // console.info(`Adding license for ${packageConfig.moduleName}`);
-    // copyLicense(destPackageFolder);
+    // copy readme
+    console.info(`Writing readme for ${packageConfig.moduleName}`);
+    copyReadme(`src/components/${componentName}`, destPackageFolder);
+
+    // write license
+    console.info(`Adding license for ${packageConfig.moduleName}`);
+    copyLicense(destPackageFolder);
 
     // build package
     // console.info(`Building package for ${packageConfig.moduleName}`);

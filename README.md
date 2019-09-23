@@ -1,13 +1,30 @@
-# Render
+# Renderless Vue
 
-Render is a work in progress of potentially useful renderless Vue.js components. Renderless components, as the name suggests, have no UI definition. These components merely provide the logic and internal functionality for you to use. This allows for you to create the front-end look and feel, define accessiblity, and handle semantics without needing to code the logic behind the component.
+Renderless Vue is a work in progress of potentially useful renderless Vue.js components. Renderless components, as the name suggests, have no UI definition. These components merely provide the logic and internal functionality for you to use. This allows for you to create the front-end look and feel, define accessiblity, and handle semantics without needing to code the logic behind the component.
 
 Each component is/will be documented below and has/will have a live example of how it could be used.
 
+## Components
+
+-   [Fuzzy Search](#fuzzy-search)
+-   [Calendar](#calendar)
+
 ## Getting started
 
-Install from npm
-Import component
+Install the library from NPM
+
+`npm install renderless-vue`
+
+Then import a single component
+
+```
+import RCalendar from 'renderless-vue/calendar';
+import RSearch from 'renderless-vue/search';
+```
+
+You can also import directly from the base library but it is not suggested as the production build tends to not tree shake the other components correctly
+
+`import { RCalendar, RSearch } from 'renderless-vue';`
 
 ## Fuzzy Search
 
@@ -113,7 +130,7 @@ The date object within the arrays is represented as such:
 
 #### Events
 
-The events prop should be an array of objects with each object containing a single event. The only requirement for a date is that it has a `start` key with a `Date` value representing when the event starts. An optional key of `end` with a `Date` value can be supplied to make an event appear on multiple days. All other information within the object will be directly copied over so you can put anything within the object that may be of value such as an address, title, description, etc..
+The events prop should be an array of objects with each object containing a single event. The only requirement for an event is that it has a `start` key with a `Date` value representing when the event starts. An optional key of `end` with a `Date` value can be supplied to make an event appear on multiple days. All other information within the object will be directly copied over so you can put anything within the object that may be of value such as an address, title, description, etc..
 
 The events will be returned correspondingly within the `dates` scoped slot per day as an array of objects.
 

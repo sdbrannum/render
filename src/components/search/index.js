@@ -1,10 +1,10 @@
-// import Worker from 'web-worker:./search.worker.js'; // build
+import Worker from 'web-worker:./search.worker.js'; // build
 // import Worker from 'worker-loader!./search.worker.js'; // dev
 import PromiseWorker from 'promise-worker';
-const Worker =
-    process.env.NODE_ENV === 'production'
-        ? require('web-worker:./search.worker.js')
-        : require('worker-loader!./search.worker.js');
+// const Worker =
+//     process.env.NODE_ENV === 'production'
+//         ? require('web-worker:./search.worker.js')
+//         : require('worker-loader!./search.worker.js');
 import Search from './search';
 import { msg_type } from './constants';
 
