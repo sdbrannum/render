@@ -10,20 +10,20 @@ export default {
         {
             name: 'RCalendar',
             exports: 'named',
-            file: 'packages/render.r-calendar/index.esm.js',
+            file: 'dist/renderless/calendar/index.esm.js',
             format: 'es',
         },
         {
             name: 'RCalendar',
             exports: 'named',
-            file: 'packages/render.r-calendar/index.umd.js',
+            file: 'dist/renderless/calendar/index.umd.js',
             format: 'umd',
         },
         {
             name: 'RCalendar',
             exports: 'named',
             format: 'iife',
-            file: 'packages/render.r-calendar/index.min.js',
+            file: 'dist/renderless/calendar/index.min.js',
         },
     ],
     plugins: [

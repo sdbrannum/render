@@ -10,11 +10,11 @@
         "vue": ">=2.0.0"
     },
     "packages": {
-        "render.r-calendar": {
+        "r-calendar": {
             "version": "0.0.0",
             "description": "A renderless vue.js calendar component."
         },
-        "render.r-search": {
+        "r-search": {
             "version": "0.0.0",
             "description": "A renderless vue.js search component."
         }

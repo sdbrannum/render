@@ -1,13 +1,26 @@
 {
-  "name": "render",
-  "version": "0.0.0",
-  "private": false,
-  "main": "dist/render.umd.js",
-  "module": "dist/render.esm.js",
-  "unpkg": "dist/render.min.js",
-  "browser": {
-    "./sfc": "src/FuzzySearch/index.js"
+  "name": "renderless-vue",
+  "description": "A renderless vue component library",
+  "author": {
+    "name": "Steven Brannum",
+    "email": "sdbrannum@gmail.com",
+    "github": "sdbrannum"
   },
+  "version": "0.0.0-beta.1",
+  "private": false,
+  "license": "MIT",
+  "homepage": "https://www.npmjs.com/packages/renderless-vue",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sdbrannum/renderless-vue.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sdbrannum/renderless-vue/issues"
+  },
+  "main": "dist/render/index.umd.js",
+  "module": "dist/render/index.esm.js",
+  "unpkg": "dist/render/index.min.js",
+  "jsdelivr": "dist/render/index.min.js",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
@@ -21,7 +34,7 @@
     "rbuild:unpkg": "rollup --config build/rollup.config.js --format iife --file dist/render.min.js"
   },
   "files": [
-    "dist/*.js"
+    "dist/render/*"
   ],
   "dependencies": {
     "core-js": "^2.6.5",

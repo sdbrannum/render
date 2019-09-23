@@ -10,22 +10,22 @@ export default {
     input: 'src/entry.js',
     output: [
         {
-            name: 'Render',
+            name: 'RenderlessVue',
             exports: 'named',
-            file: 'packages/render/index.esm.js',
+            file: 'dist/renderless/index.esm.js',
             format: 'es',
         },
         {
-            name: 'Render',
+            name: 'RenderlessVue',
             exports: 'named',
-            file: 'packages/render/index.umd.js',
+            file: 'dist/renderless/index.umd.js',
             format: 'umd',
         },
         {
-            name: 'Render',
+            name: 'RenderlessVue',
             exports: 'named',
             format: 'iife',
-            file: 'packages/render/index.min.js',
+            file: 'dist/renderless/index.min.js',
         },
     ],
     plugins: [
@@ -35,7 +35,7 @@ export default {
         terser(),
         webWorkerLoader(),
         resolve({
-            only: ['date-fns'],
+            only: ['date-fns', 'promise-worker'],
         }),
     ],
 };
